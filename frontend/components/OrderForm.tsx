@@ -21,7 +21,8 @@ export function OrderForm() {
   const { swap, isPending, isConfirming, isSuccess, error, hash } = useSwap();
 
   // Check if user is on the correct network
-  const isCorrectNetwork = chain?.id === raylsTestnet.id;
+  // If chain is undefined, assume we're on the correct network (connected state will handle this)
+  const isCorrectNetwork = !chain || chain.id === raylsTestnet.id;
 
   // Fetch token balances
   const { formattedBalance: usdcBalance } = useTokenBalance(
@@ -61,15 +62,30 @@ export function OrderForm() {
     return "0.0";
   };
 
-  // Show success message and open monitor
+  // Open monitor when transaction is submitted (hash available)
   useEffect(() => {
-    if (isSuccess && hash) {
-      console.log("Swap successful! Hash:", hash);
-      if (typeof window !== "undefined") {
-        window.open("/monitor", "_blank", "noopener,noreferrer");
+    if (hash) {
+      console.log("Transaction submitted! Hash:", hash);
+      console.log("Opening monitor window...");
+
+      // Build URL with transaction data
+      const params = new URLSearchParams({
+        hash: hash,
+        tokenIn: formData.tokenIn,
+        tokenOut: formData.tokenOut,
+        amountIn: formData.amountIn,
+        estimatedOut: calculateEstimatedOutput(),
+      });
+
+      const monitorWindow = window.open(`/monitor?${params.toString()}`, "_blank", "noopener,noreferrer");
+      if (!monitorWindow) {
+        console.error("Failed to open monitor window - popup may be blocked");
+        alert("Please allow popups for this site to see the transaction monitor");
+      } else {
+        console.log("Monitor window opened successfully");
       }
     }
-  }, [isSuccess, hash]);
+  }, [hash]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,18 +93,6 @@ export function OrderForm() {
     if (!isConnected) {
       alert("Please connect your wallet first");
       return;
-    }
-
-    // Check if on correct network, if not, prompt to switch
-    if (!isCorrectNetwork) {
-      try {
-        await switchChain({ chainId: raylsTestnet.id });
-        return; // Exit and let user retry after switching
-      } catch (err) {
-        console.error("Failed to switch network:", err);
-        alert("Please switch to Rayls Testnet in your wallet");
-        return;
-      }
     }
 
     if (!formData.amountIn || amountNum <= 0) {
@@ -286,16 +290,21 @@ export function OrderForm() {
         <button
           type="submit"
           className="w-full py-3 px-6 bg-lime-500 text-black font-semibold rounded-lg hover:bg-lime-400 transition-colors disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed"
-          disabled={(!formData.amountIn || amountNum <= 0 || !isConnected || isPending || isConfirming) && isCorrectNetwork}
+          disabled={
+            !isConnected ||
+            isPending ||
+            isConfirming ||
+            !!hash ||
+            !formData.amountIn ||
+            amountNum <= 0
+          }
         >
           {!isConnected
             ? "Connect Wallet"
-            : !isCorrectNetwork
-            ? "Switch to Rayls Testnet"
             : isPending
             ? "Waiting for approval..."
-            : isConfirming
-            ? "Confirming transaction..."
+            : isConfirming || hash
+            ? "Processing..."
             : !formData.amountIn
             ? "Enter Amount"
             : amountNum <= 0
