@@ -3,9 +3,9 @@
 @tailwind utilities;
 
 :root {
-  --primary: #3b82f6;
-  --success: #10b981;
-  --warning: #f59e0b;
+  --primary: #84cc16;
+  --success: #84cc16;
+  --warning: #facc15;
   --error: #ef4444;
   --neutral: #6b7280;
 }
@@ -22,6 +22,18 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f9fafb;
-  color: #1f2937;
+  background-color: #0a0a0a;
+  color: #e5e5e5;
+}
+
+select option {
+  background-color: #111827;
+  color: #e5e5e5;
+}
+
+select option:hover,
+select option:checked,
+select option:focus {
+  background-color: #84cc16;
+  color: #000000;
 }

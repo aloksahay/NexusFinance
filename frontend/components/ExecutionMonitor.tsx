@@ -32,21 +32,21 @@ export function ExecutionMonitor({ orderStatus }: Props) {
     : 0;
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6 max-w-2xl mx-auto mt-8">
+    <div className="bg-gray-900 border border-gray-800 rounded-lg shadow-lg p-6 max-w-2xl mx-auto mt-8">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold">Order Execution Status</h2>
-        <p className="text-gray-600">Order #{orderStatus.orderId}</p>
+        <h2 className="text-2xl font-bold text-white">Order Execution Status</h2>
+        <p className="text-gray-400">Order #{orderStatus.orderId}</p>
       </div>
 
       {/* Progress Bar */}
       <div className="mb-6">
         <div className="flex justify-between text-sm mb-2">
-          <span className="font-medium">Progress:</span>
-          <span className="text-gray-600">{Math.round(progress)}% Complete</span>
+          <span className="font-medium text-gray-300">Progress:</span>
+          <span className="text-gray-400">{Math.round(progress)}% Complete</span>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-3">
+        <div className="w-full bg-gray-800 rounded-full h-3">
           <div
-            className="bg-primary h-3 rounded-full transition-all duration-500"
+            className="bg-lime-500 h-3 rounded-full transition-all duration-500"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -55,24 +55,24 @@ export function ExecutionMonitor({ orderStatus }: Props) {
       {/* Status Cards */}
       <div className="space-y-4">
         {/* Immediate Execution Card */}
-        <div className="border border-success bg-green-50 rounded-lg p-4">
+        <div className="border border-lime-500/30 bg-lime-500/10 rounded-lg p-4">
           <div className="flex items-start gap-3">
-            <span className="text-success text-xl">✓</span>
+            <span className="text-lime-400 text-xl">✓</span>
             <div className="flex-1">
-              <h3 className="font-semibold text-gray-900">COMPLETED</h3>
-              <p className="text-gray-700 mt-1">Immediate Execution</p>
-              <p className="text-sm text-gray-600 mt-2">
+              <h3 className="font-semibold text-white">COMPLETED</h3>
+              <p className="text-gray-300 mt-1">Immediate Execution</p>
+              <p className="text-sm text-gray-400 mt-2">
                 {formatCurrency(orderStatus.immediateExecution.amount)} USDC →{" "}
                 {orderStatus.immediateExecution.received} ETH
               </p>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-400">
                 Price: {formatCurrency(2551)}/ETH
               </p>
               <a
-                href={`https://etherscan.io/tx/${orderStatus.immediateExecution.txHash}`}
+                href={`https://rayls-test-chain.explorer.caldera.xyz/tx/${orderStatus.immediateExecution.txHash}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-primary hover:underline mt-1 inline-block"
+                className="text-sm text-lime-400 hover:underline mt-1 inline-block"
               >
                 View Transaction →
               </a>
@@ -85,8 +85,8 @@ export function ExecutionMonitor({ orderStatus }: Props) {
           <div
             className={`border rounded-lg p-4 ${
               orderStatus.status === "completed"
-                ? "border-success bg-green-50"
-                : "border-warning bg-yellow-50"
+                ? "border-lime-500/30 bg-lime-500/10"
+                : "border-yellow-500/30 bg-yellow-500/10"
             }`}
           >
             <div className="flex items-start gap-3">
@@ -94,18 +94,18 @@ export function ExecutionMonitor({ orderStatus }: Props) {
                 {orderStatus.status === "completed" ? "✓" : "⏳"}
               </span>
               <div className="flex-1">
-                <h3 className="font-semibold text-gray-900">
+                <h3 className="font-semibold text-white">
                   {orderStatus.status === "completed" ? "COMPLETED" : "IN PROGRESS"}
                 </h3>
-                <p className="text-gray-700 mt-1">AI Routing Decision</p>
-                <p className="text-sm text-gray-600 mt-2">
+                <p className="text-gray-300 mt-1">AI Routing Decision</p>
+                <p className="text-sm text-gray-400 mt-2">
                   Route:{" "}
                   {orderStatus.aiRoute === "twap_vault"
                     ? "TWAP + Vault"
                     : "Dark Pool"}
                 </p>
                 {orderStatus.twapProgress && orderStatus.status === "executing" && (
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-400">
                     Status: Executing chunk {orderStatus.twapProgress.currentChunk} of{" "}
                     {orderStatus.twapProgress.totalChunks}
                   </p>
@@ -117,22 +117,22 @@ export function ExecutionMonitor({ orderStatus }: Props) {
 
         {/* Yield Card (TWAP only) */}
         {orderStatus.aiRoute === "twap_vault" && (
-          <div className="border border-success bg-green-50 rounded-lg p-4">
+          <div className="border border-lime-500/30 bg-lime-500/10 rounded-lg p-4">
             <div className="flex items-start gap-3">
               <span className="text-xl">💰</span>
               <div className="flex-1">
-                <h3 className="font-semibold text-gray-900">YIELD EARNED</h3>
-                <p className="text-2xl font-bold text-success mt-2">
+                <h3 className="font-semibold text-white">YIELD EARNED</h3>
+                <p className="text-2xl font-bold text-lime-400 mt-2">
                   {formatCurrency(yieldEarned)} USDC
                   {orderStatus.status === "executing" && (
-                    <span className="text-base font-normal text-gray-600">
+                    <span className="text-base font-normal text-gray-400">
                       {" "}
                       (and counting...)
                     </span>
                   )}
                 </p>
-                <p className="text-sm text-gray-600 mt-2">APY: 5.4% (Aave)</p>
-                <p className="text-sm text-gray-600">Time in vault: 42 minutes</p>
+                <p className="text-sm text-gray-400 mt-2">APY: 5.4% (Aave)</p>
+                <p className="text-sm text-gray-400">Time in vault: 42 minutes</p>
               </div>
             </div>
           </div>
@@ -141,17 +141,17 @@ export function ExecutionMonitor({ orderStatus }: Props) {
 
       {/* Remaining Info */}
       {orderStatus.status === "executing" && (
-        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+        <div className="mt-6 p-4 bg-gray-800 border border-gray-700 rounded-lg">
           <div className="flex justify-between text-sm">
-            <span className="text-gray-700">Remaining:</span>
-            <span className="font-medium">
+            <span className="text-gray-400">Remaining:</span>
+            <span className="font-medium text-white">
               {formatCurrency(orderStatus.remainingAmount)} USDC
             </span>
           </div>
           {timeUntilNext > 0 && (
             <div className="flex justify-between text-sm mt-2">
-              <span className="text-gray-700">Next execution:</span>
-              <span className="font-medium">~{formatTimeRemaining(timeUntilNext)}</span>
+              <span className="text-gray-400">Next execution:</span>
+              <span className="font-medium text-white">~{formatTimeRemaining(timeUntilNext)}</span>
             </div>
           )}
         </div>
@@ -159,11 +159,11 @@ export function ExecutionMonitor({ orderStatus }: Props) {
 
       {/* Action Buttons */}
       <div className="flex gap-4 mt-6">
-        <button className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+        <button className="flex-1 px-4 py-2 border border-gray-700 text-gray-300 rounded-lg hover:bg-gray-800 transition-colors">
           View on Explorer
         </button>
         {orderStatus.status === "executing" && (
-          <button className="flex-1 px-4 py-2 border border-error text-error rounded-lg hover:bg-red-50 transition-colors">
+          <button className="flex-1 px-4 py-2 border border-red-500/50 text-red-400 rounded-lg hover:bg-red-500/10 transition-colors">
             Cancel Order
           </button>
         )}

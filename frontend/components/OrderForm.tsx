@@ -26,22 +26,26 @@ export function OrderForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Submitting order:", formData);
+    if (typeof window !== "undefined") {
+      window.open("/monitor", "_blank", "noopener,noreferrer");
+    }
     // TODO: Implement order submission
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6 max-w-2xl mx-auto">
-      <h2 className="text-2xl font-bold mb-6">Submit Large Swap Order</h2>
+    <div className="relative max-w-2xl mx-auto overflow-hidden rounded-2xl border border-lime-500/30 bg-gradient-to-br from-black via-gray-900 to-black p-6 shadow-[0_25px_80px_rgba(132,204,22,0.15)]">
+      <div className="absolute inset-0 rounded-2xl border border-lime-500/10 blur-xl pointer-events-none" />
+      <h2 className="text-2xl font-bold mb-6 text-white">Submit Swap Order</h2>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* From Token */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-400 mb-2">
             From
           </label>
           <div className="flex gap-4">
             <select
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="flex-1 px-4 py-2 bg-gray-800 border border-gray-700 text-white rounded-lg focus:ring-2 focus:ring-lime-500 focus:border-transparent"
               value={formData.tokenIn}
               onChange={(e) =>
                 setFormData({ ...formData, tokenIn: e.target.value })
@@ -57,7 +61,7 @@ export function OrderForm() {
             <input
               type="number"
               placeholder="0.0"
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="flex-1 px-4 py-2 bg-gray-800 border border-gray-700 text-white rounded-lg focus:ring-2 focus:ring-lime-500 focus:border-transparent"
               value={formData.amountIn}
               onChange={(e) =>
                 setFormData({ ...formData, amountIn: e.target.value })
@@ -69,12 +73,12 @@ export function OrderForm() {
 
         {/* To Token */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-400 mb-2">
             To
           </label>
           <div className="flex gap-4">
             <select
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="flex-1 px-4 py-2 bg-gray-800 border border-gray-700 text-white rounded-lg focus:ring-2 focus:ring-lime-500 focus:border-transparent"
               value={formData.tokenOut}
               onChange={(e) =>
                 setFormData({ ...formData, tokenOut: e.target.value })
@@ -87,7 +91,7 @@ export function OrderForm() {
               ))}
             </select>
 
-            <div className="flex-1 px-4 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-600">
+            <div className="flex-1 px-4 py-2 border border-gray-700 rounded-lg bg-gray-800 text-gray-400">
               ~19.8 ETH
             </div>
           </div>
@@ -95,7 +99,7 @@ export function OrderForm() {
 
         {/* Slippage */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-400 mb-2">
             Max Slippage: {formData.maxSlippage}%
           </label>
           <input
@@ -107,7 +111,7 @@ export function OrderForm() {
             onChange={(e) =>
               setFormData({ ...formData, maxSlippage: parseFloat(e.target.value) })
             }
-            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary"
+            className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-lime-500"
           />
           <div className="flex justify-between text-xs text-gray-500 mt-1">
             <span>0.1%</span>
@@ -117,69 +121,87 @@ export function OrderForm() {
 
         {/* Deadline */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-400 mb-2">
             Deadline
           </label>
-          <select
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-            value={formData.deadline}
-            onChange={(e) =>
-              setFormData({ ...formData, deadline: parseInt(e.target.value) })
-            }
-          >
-            {DEADLINE_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+          <div className="relative">
+            <select
+              className="w-full px-4 py-2 bg-gray-800 border border-gray-700 text-white rounded-lg focus:ring-2 focus:ring-lime-500 focus:border-transparent appearance-none pr-10"
+              value={formData.deadline}
+              onChange={(e) =>
+                setFormData({ ...formData, deadline: parseInt(e.target.value) })
+              }
+            >
+              {DEADLINE_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-lime-400">
+              <svg
+                className="h-3 w-3"
+                viewBox="0 0 10 6"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M1 1l4 4 4-4"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </span>
+          </div>
         </div>
 
         {/* Order Size Indicator */}
-        <div className="border-t border-gray-200 pt-4">
+        <div className="border-t border-gray-800 pt-4">
           <div className="flex items-center gap-3">
             <div
               className={`w-3 h-3 rounded-full ${
-                isLargeOrder ? "bg-success" : "bg-gray-400"
+                isLargeOrder ? "bg-lime-500" : "bg-gray-600"
               }`}
             />
-            <span className="font-medium">
-              {isLargeOrder ? "Large" : "Small"} Order
+            <span className="font-medium text-white">
+              {isLargeOrder ? "Smart Router" : "Direct Order"}
             </span>
-            <span className="text-sm text-gray-600">
+            <span className="text-sm text-gray-400">
               {isLargeOrder
-                ? `(≥${formatCurrency(LARGE_ORDER_THRESHOLD)}) - Smart routing ✓`
-                : `(<${formatCurrency(LARGE_ORDER_THRESHOLD)}) - Direct execution`}
+                ? `(≥${formatCurrency(LARGE_ORDER_THRESHOLD)}) - AI-optimized routing ✓`
+                : `(<${formatCurrency(LARGE_ORDER_THRESHOLD)}) - Instant execution`}
             </span>
           </div>
         </div>
 
         {/* Estimation Panel (only for large orders) */}
         {isLargeOrder && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h3 className="font-semibold text-gray-900 mb-3">
+          <div className="bg-gray-800 border border-lime-500/30 rounded-lg p-4">
+            <h3 className="font-semibold text-white mb-3">
               Estimated Execution:
             </h3>
-            <ul className="space-y-2 text-sm">
+            <ul className="space-y-2 text-sm text-gray-300">
               <li className="flex justify-between">
                 <span>• Immediate:</span>
-                <span className="font-medium">
+                <span className="font-medium text-white">
                   2.5% (~{formatCurrency(amountNum * 0.025)})
                 </span>
               </li>
               <li className="flex justify-between">
                 <span>• AI Routed:</span>
-                <span className="font-medium">
+                <span className="font-medium text-white">
                   97.5% (~{formatCurrency(amountNum * 0.975)})
                 </span>
               </li>
               <li className="flex justify-between">
                 <span>• Est. Route:</span>
-                <span className="font-medium">Dark Pool / TWAP</span>
+                <span className="font-medium text-lime-400">Dark Pool / TWAP</span>
               </li>
               <li className="flex justify-between">
                 <span>• Est. Yield:</span>
-                <span className="font-medium text-success">
+                <span className="font-medium text-lime-400">
                   +{formatCurrency(2.15)} while waiting
                 </span>
               </li>
@@ -190,7 +212,7 @@ export function OrderForm() {
         {/* Submit Button */}
         <button
           type="submit"
-          className="w-full py-3 px-6 bg-primary text-white font-semibold rounded-lg hover:bg-blue-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+          className="w-full py-3 px-6 bg-lime-500 text-black font-semibold rounded-lg hover:bg-lime-400 transition-colors disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed"
           disabled={!formData.amountIn || amountNum <= 0}
         >
           {!formData.amountIn
