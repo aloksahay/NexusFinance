@@ -19,8 +19,15 @@ export const raylsTestnet = defineChain({
   blockExplorers: {
     default: {
       name: "Rayls Explorer",
-      url: "https://rayls-test-chain.explorer.caldera.xyz",
+      url: "https://devnet-explorer.rayls.com",
     },
   },
   testnet: true,
 });
+
+// Contract addresses on Rayls Testnet
+export const RAYLS_CONTRACTS = {
+  POOL: "0x71c34113a6A3E18C36db14D2D756dD6A7f08daC0",
+  USDC: "0x613106b0cF1C765e877ae5cD8a8D40CfEE98EB62",
+  NXX: "0x8e99D58dE0140e07331Fb388722906AE2499584c",
+} as const;

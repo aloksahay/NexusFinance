@@ -1,5 +1,7 @@
 import { OrderStatus } from "@/types/order";
 
+const STATIC_NEXT_EXECUTION_TIME = 1733109600000; // Fixed timestamp to avoid hydration mismatch
+
 export const MOCK_ORDER_STATUS: OrderStatus = {
   orderId: "12345",
   status: "executing",
@@ -12,7 +14,7 @@ export const MOCK_ORDER_STATUS: OrderStatus = {
   twapProgress: {
     currentChunk: 3,
     totalChunks: 5,
-    nextExecutionTime: Date.now() + 480000, // 8 minutes
+    nextExecutionTime: STATIC_NEXT_EXECUTION_TIME,
   },
   yieldEarned: "1.82",
   remainingAmount: "28500",

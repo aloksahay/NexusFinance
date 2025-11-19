@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { OrderForm as OrderFormType } from "@/types/order";
 import {
   TOKENS_IN,
@@ -10,11 +10,34 @@ import {
   LARGE_ORDER_THRESHOLD,
 } from "@/lib/constants";
 import { formatCurrency, formatNumber } from "@/lib/utils/formatters";
+import { useSwap } from "@/hooks/useSwap";
+import { useTokenBalance } from "@/hooks/useTokenBalance";
+import { useAccount, useSwitchChain } from "wagmi";
+import { RAYLS_CONTRACTS, raylsTestnet } from "@/lib/networks";
 
 export function OrderForm() {
+  const { isConnected, address, chain } = useAccount();
+  const { switchChain } = useSwitchChain();
+  const { swap, isPending, isConfirming, isSuccess, error, hash } = useSwap();
+
+  // Check if user is on the correct network
+  const isCorrectNetwork = chain?.id === raylsTestnet.id;
+
+  // Fetch token balances
+  const { formattedBalance: usdcBalance } = useTokenBalance(
+    RAYLS_CONTRACTS.USDC,
+    address,
+    18
+  );
+  const { formattedBalance: nxxBalance } = useTokenBalance(
+    RAYLS_CONTRACTS.NXX,
+    address,
+    18
+  );
+
   const [formData, setFormData] = useState<OrderFormType>({
     tokenIn: "USDC",
-    tokenOut: "ETH",
+    tokenOut: "NXX",
     amountIn: "",
     maxSlippage: 0.5,
     deadline: 60,
@@ -23,13 +46,61 @@ export function OrderForm() {
   const amountNum = parseFloat(formData.amountIn) || 0;
   const isLargeOrder = amountNum >= LARGE_ORDER_THRESHOLD;
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Submitting order:", formData);
-    if (typeof window !== "undefined") {
-      window.open("/monitor", "_blank", "noopener,noreferrer");
+  // Calculate estimated output based on 1 NXX = 200 USDC
+  const NXX_PRICE = 200;
+  const calculateEstimatedOutput = () => {
+    if (!amountNum || amountNum <= 0) return "0.0";
+
+    if (formData.tokenIn === "USDC" && formData.tokenOut === "NXX") {
+      // USDC to NXX: divide by price
+      return formatNumber(amountNum / NXX_PRICE, 4);
+    } else if (formData.tokenIn === "NXX" && formData.tokenOut === "USDC") {
+      // NXX to USDC: multiply by price
+      return formatNumber(amountNum * NXX_PRICE, 2);
     }
-    // TODO: Implement order submission
+    return "0.0";
+  };
+
+  // Show success message and open monitor
+  useEffect(() => {
+    if (isSuccess && hash) {
+      console.log("Swap successful! Hash:", hash);
+      if (typeof window !== "undefined") {
+        window.open("/monitor", "_blank", "noopener,noreferrer");
+      }
+    }
+  }, [isSuccess, hash]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!isConnected) {
+      alert("Please connect your wallet first");
+      return;
+    }
+
+    // Check if on correct network, if not, prompt to switch
+    if (!isCorrectNetwork) {
+      try {
+        await switchChain({ chainId: raylsTestnet.id });
+        return; // Exit and let user retry after switching
+      } catch (err) {
+        console.error("Failed to switch network:", err);
+        alert("Please switch to Rayls Testnet in your wallet");
+        return;
+      }
+    }
+
+    if (!formData.amountIn || amountNum <= 0) {
+      alert("Please enter a valid amount");
+      return;
+    }
+
+    try {
+      await swap(formData.tokenIn, formData.tokenOut, formData.amountIn);
+    } catch (err) {
+      console.error("Swap failed:", err);
+    }
   };
 
   return (
@@ -68,7 +139,9 @@ export function OrderForm() {
               }
             />
           </div>
-          <p className="text-sm text-gray-500 mt-1">Balance: 50,000 USDC</p>
+          <p className="text-sm text-gray-500 mt-1">
+            Balance: {isConnected ? `${formatNumber(parseFloat(formData.tokenIn === "USDC" ? usdcBalance : nxxBalance), 2)} ${formData.tokenIn}` : "Connect wallet"}
+          </p>
         </div>
 
         {/* To Token */}
@@ -92,7 +165,7 @@ export function OrderForm() {
             </select>
 
             <div className="flex-1 px-4 py-2 border border-gray-700 rounded-lg bg-gray-800 text-gray-400">
-              ~19.8 ETH
+              ~{calculateEstimatedOutput()} {formData.tokenOut}
             </div>
           </div>
         </div>
@@ -213,14 +286,29 @@ export function OrderForm() {
         <button
           type="submit"
           className="w-full py-3 px-6 bg-lime-500 text-black font-semibold rounded-lg hover:bg-lime-400 transition-colors disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed"
-          disabled={!formData.amountIn || amountNum <= 0}
+          disabled={(!formData.amountIn || amountNum <= 0 || !isConnected || isPending || isConfirming) && isCorrectNetwork}
         >
-          {!formData.amountIn
+          {!isConnected
+            ? "Connect Wallet"
+            : !isCorrectNetwork
+            ? "Switch to Rayls Testnet"
+            : isPending
+            ? "Waiting for approval..."
+            : isConfirming
+            ? "Confirming transaction..."
+            : !formData.amountIn
             ? "Enter Amount"
             : amountNum <= 0
             ? "Invalid Amount"
             : "Submit Order"}
         </button>
+
+        {/* Error message */}
+        {error && (
+          <div className="text-red-400 text-sm text-center">
+            Error: {error.message}
+          </div>
+        )}
       </form>
     </div>
   );

@@ -69,7 +69,7 @@ export function ExecutionMonitor({ orderStatus }: Props) {
                 Price: {formatCurrency(2551)}/ETH
               </p>
               <a
-                href={`https://rayls-test-chain.explorer.caldera.xyz/tx/${orderStatus.immediateExecution.txHash}`}
+                href={`https://devnet-explorer.rayls.com/tx/${orderStatus.immediateExecution.txHash}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-sm text-lime-400 hover:underline mt-1 inline-block"
@@ -159,9 +159,14 @@ export function ExecutionMonitor({ orderStatus }: Props) {
 
       {/* Action Buttons */}
       <div className="flex gap-4 mt-6">
-        <button className="flex-1 px-4 py-2 border border-gray-700 text-gray-300 rounded-lg hover:bg-gray-800 transition-colors">
+        <a
+          href={`https://devnet-explorer.rayls.com/tx/${orderStatus.immediateExecution.txHash}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex-1 px-4 py-2 border border-gray-700 text-gray-300 rounded-lg hover:bg-gray-800 transition-colors text-center"
+        >
           View on Explorer
-        </button>
+        </a>
         {orderStatus.status === "executing" && (
           <button className="flex-1 px-4 py-2 border border-red-500/50 text-red-400 rounded-lg hover:bg-red-500/10 transition-colors">
             Cancel Order

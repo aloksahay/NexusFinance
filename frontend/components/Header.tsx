@@ -1,13 +1,26 @@
 "use client";
 
 import { useAccount, useConnect, useDisconnect } from "wagmi";
-import { formatAddress } from "@/lib/utils/formatters";
+import { formatAddress, formatNumber } from "@/lib/utils/formatters";
 import { LogoMark } from "@/components/LogoMark";
+import { useTokenBalance } from "@/hooks/useTokenBalance";
+import { RAYLS_CONTRACTS } from "@/lib/networks";
 
 export function Header() {
   const { address, isConnected } = useAccount();
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
+
+  const { formattedBalance: usdcBalance } = useTokenBalance(
+    RAYLS_CONTRACTS.USDC,
+    address,
+    18
+  );
+  const { formattedBalance: nxxBalance } = useTokenBalance(
+    RAYLS_CONTRACTS.NXX,
+    address,
+    18
+  );
 
   return (
     <header className="border-b border-gray-800 bg-black">
@@ -22,6 +35,15 @@ export function Header() {
             <span className="px-3 py-1 bg-lime-500/20 text-lime-400 text-xs font-medium rounded-full border border-lime-500/30">
               Rayls Testnet
             </span>
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-gray-400">
+                {formatNumber(parseFloat(usdcBalance), 2)} USDC
+              </span>
+              <span className="text-gray-600">|</span>
+              <span className="text-gray-400">
+                {formatNumber(parseFloat(nxxBalance), 2)} NXX
+              </span>
+            </div>
             <span className="text-sm text-gray-400">{formatAddress(address || "")}</span>
             <button
               onClick={() => disconnect()}
